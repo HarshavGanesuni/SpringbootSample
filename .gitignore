@@ -1,13 +1,11 @@
-<<<<<<< Updated upstream
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-=======
-<<<<<<< HEAD
 # Compiled class file
 *.class
->>>>>>> Stashed changes
+
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -40,7 +38,6 @@ build/
 ### VS Code ###
 .vscode/
 
-<<<<<<< Updated upstream
 ### Mac OS ###
 .DS_Store
 =======
@@ -86,5 +83,3 @@ build/
 
 ### Mac OS ###
 .DS_Store
->>>>>>> 3af0922 (Add initial springboot sample project)
->>>>>>> Stashed changes
