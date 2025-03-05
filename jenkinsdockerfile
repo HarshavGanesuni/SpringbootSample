@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         maven 'maven-3.9.9'
-        docker 'mydocker'
+
     }
     environment{
 	DOCKERHUB_CREDENTIALS = credentials('harsha-dock')
@@ -16,9 +16,12 @@ pipeline {
             }
         }
 
-        stage('Build docker image') {
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t harshaganesuni/springboot:$BUILD_NUMBER .'
+                script {
+                    def imageTag = "harshaganesuni/springboot:${env.BUILD_NUMBER}"
+                    sh "docker build -t ${imageTag} ."
+                }
             }
         }
 		stage('Login to docker hub') {
