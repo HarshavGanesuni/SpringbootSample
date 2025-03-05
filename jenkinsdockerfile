@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven-3.9.9'
+    }
+    environment{
+	DOCKERHUB_CREDENTIALS = credentials('harsha-dock')
+	}
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'main', url: 'https://github.com/HarshavGanesuni/SpringbootSample.git'
+                }
+            }
+        }
+
+        stage('Build docker image') {
+            steps {
+                sh 'docker build -t harshaganesuni/springboot:$BUILD_NUMBER .'
+            }
+        }
+		stage('Login to docker hub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --passwd-stdin'
+            }
+        }
+		stage('Push image') {
+            steps {
+                sh 'docker push  harshaganesuni/springboot:$BUILD_NUMBER'
+            }
+        }
+	}
+	post{
+	   always{
+	    sh 'docker logout'
+	}
+	}
+}
