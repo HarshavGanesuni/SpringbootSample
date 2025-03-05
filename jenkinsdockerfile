@@ -19,8 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def imageTag = "harshaganesuni/springboot:${env.BUILD_NUMBER}"
-                    sh "docker build -t ${imageTag} ."
+                dockerImage = docker.build registry
                 }
             }
         }
