@@ -15,7 +15,7 @@ pipeline {
                 }
             }
         }
-        stage('Checkout') {
+        stage('JAR') {
                     steps {
                         script {
                             sh 'mvn clean package'
