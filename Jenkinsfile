@@ -18,15 +18,31 @@ pipeline {
                 sh 'mvn clean package'
             }
         }
-        stage('PUSH TO ECR'){
-        steps{
-        script{
-       sh ' aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com
-       docker build -t springdemo .
-       docker tag springdemo:latest 980889732995.dkr.ecr.us-east-1.amazonaws.com/springdemo:latest
-       docker push 980889732995.dkr.ecr.us-east-1.amazonaws.com/springdemo:latest '
-       }
-       }
-       }
+       stage('PUSH TO ECR') {
+           steps {
+               script {
+                   // Authenticate Docker with AWS ECR
+                   sh '''
+                       aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com
+                   '''
+
+                   // Build Docker image
+                   sh '''
+                       docker build -t springdemo .
+                   '''
+
+                   // Tag Docker image
+                   sh '''
+                       docker tag springdemo:latest 980889732995.dkr.ecr.us-east-1.amazonaws.com/springdemo:latest
+                   '''
+
+                   // Push Docker image to ECR
+                   sh '''
+                       docker push 980889732995.dkr.ecr.us-east-1.amazonaws.com/springdemo:latest
+                   '''
+               }
+           }
+       }g
+
 	}
 }
