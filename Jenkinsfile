@@ -23,7 +23,7 @@ pipeline {
                script {
                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]){
                    // Authenticate Docker with AWS ECR
-                   sh '(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com'
+                   sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com'
                   // Build Docker image
                    sh 'docker build -t springdemo . '
                    // Tag Docker image
