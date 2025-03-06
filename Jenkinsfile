@@ -1,9 +1,5 @@
 pipeline {
     agent any
-   environment {
-        AWS_ACCESS_KEY_ID     = credentials('aws_access_key_id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-    }
     tools {
         maven 'maven-3.9.9'
     }
@@ -27,7 +23,7 @@ pipeline {
                script {
                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]){
                    // Authenticate Docker with AWS ECR
-                   sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com'
+                   //sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com'
                   // Build Docker image
                    sh 'docker build -t springdemo . '
                    // Tag Docker image
