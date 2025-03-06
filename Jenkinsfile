@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     tools {
         maven 'maven-3.9.9'
     }
@@ -21,7 +22,7 @@ pipeline {
          stage('PUSH TO ECR') {
            steps {
                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'cli-id']]){
+                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'cli-id']]){
                    // Authenticate Docker with AWS ECR
                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 980889732995.dkr.ecr.us-east-1.amazonaws.com'
                   // Build Docker image
@@ -32,7 +33,7 @@ pipeline {
 
                    // Push Docker image to ECR
                    sh ' docker push 980889732995.dkr.ecr.us-east-1.amazonaws.com/springdemo:latest '
-
+                  }
            }
        }
        }
