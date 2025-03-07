@@ -6,7 +6,6 @@ pipeline {
         ECR_URI = '980889732995.dkr.ecr.us-east-1.amazonaws.com'
         REPOSITORY_NAME = 'springdemo'
     }
-
     stages {
         stage('Checkout') {
             steps {
