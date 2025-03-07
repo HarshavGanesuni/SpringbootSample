@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_URI = '980889732995.dkr.ecr.us-east-1.amazonaws.com'
+        REPOSITORY_NAME = 'springdemo'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'ecr', url: 'https://github.com/HarshavGanesuni/SpringbootSample.git'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'cli-id']]) {
+                        // Ensure AWS CLI is available on Windows
+                        bat 'aws --version'
+
+                        // Authenticate Docker with AWS ECR
+                        bat """
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+                        """
+
+                        // Build Docker image
+                        bat 'docker build -t springdemo .'
+
+                        // Tag Docker image
+                        bat "docker tag ${REPOSITORY_NAME}:latest ${ECR_URI}/${REPOSITORY_NAME}:latest"
+
+                        // Push Docker image to ECR
+                        bat "docker push ${ECR_URI}/${REPOSITORY_NAME}:latest"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()  // Clean workspace after execution
+        }
+    }
+}
