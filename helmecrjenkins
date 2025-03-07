@@ -37,7 +37,7 @@ pipeline {
                         """
 
                         // Build Docker image
-                        bat 'docker build -t ${REPOSITORY_NAME} .'
+                        bat 'docker build -t springdemo .'
 
                         // Tag Docker image
                         bat "docker tag ${REPOSITORY_NAME}:latest ${ECR_URI}/${REPOSITORY_NAME}:latest"
