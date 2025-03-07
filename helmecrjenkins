@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_URI = '980889732995.dkr.ecr.us-east-1.amazonaws.com'
+        REPOSITORY_NAME = 'springdemo'
+        HELM_REPOSITORY_NAME = 'springdemo-chart'
+        CHART_DIR = './helm-chart'  // Directory containing your Helm chart
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'ecr', url: 'https://github.com/HarshavGanesuni/SpringbootSample.git'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+
+        stage('Push Docker to ECR') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'cli-id']]) {
+                        // Ensure AWS CLI is available on Windows
+                        bat 'aws --version'
+
+                        // Authenticate Docker with AWS ECR
+                        bat """
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+                        """
+
+                        // Build Docker image
+                        bat 'docker build -t ${REPOSITORY_NAME} .'
+
+                        // Tag Docker image
+                        bat "docker tag ${REPOSITORY_NAME}:latest ${ECR_URI}/${REPOSITORY_NAME}:latest"
+
+                        // Push Docker image to ECR
+                        bat "docker push ${ECR_URI}/${REPOSITORY_NAME}:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push Helm Chart') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'cli-id']]) {
+                        // Ensure Helm is installed
+                        bat 'helm version'
+
+                        // Package the Helm chart (Assuming your chart is in the ./helm-chart directory)
+                        bat "helm package ${CHART_DIR}"
+
+                        // Authenticate Helm with ECR (Enable OCI support for Helm)
+                        bat """
+                            aws ecr get-login-password --region ${AWS_REGION} | helm registry login --username AWS --password-stdin ${ECR_URI}
+                        """
+
+                        // Push Helm chart to ECR (Ensure the ECR repository exists for Helm charts)
+                        bat """
+                            helm push ${CHART_DIR}/${HELM_REPOSITORY_NAME}-<version>.tgz oci://${ECR_URI}/${HELM_REPOSITORY_NAME}
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()  // Clean workspace after execution
+        }
+    }
+}
